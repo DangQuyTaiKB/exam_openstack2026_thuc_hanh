@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thi thực hành</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#f5f5f0;--surface:#fff;--border:#e2e0d8;--border2:#c8c6bc;
+    --text:#1a1a18;--text2:#6b6a64;--text3:#9b9a94;
+    --blue-bg:#eff6ff;--blue-border:#bfdbfe;--blue-text:#1d4ed8;
+    --green-bg:#f0fdf4;--green-border:#bbf7d0;--green-text:#15803d;
+    --red-bg:#fef2f2;--red-border:#fecaca;--red-text:#dc2626;
+    --amber-bg:#fffbeb;--amber-border:#fde68a;--amber-text:#92400e;
+    --radius:10px;--radius-sm:7px;
+  }
+  body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--text);min-height:100vh}
+  .container{max-width:640px;margin:0 auto;padding:2rem 1rem}
+  h1{font-size:22px;font-weight:600;margin-bottom:.25rem}
+  h2{font-size:16px;font-weight:600;margin-bottom:.75rem}
+  p{font-size:14px;color:var(--text2);line-height:1.65}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1rem}
+  .step-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#1a1a18;color:#fff;font-size:12px;font-weight:600;flex-shrink:0;margin-right:10px}
+  .step-row{display:flex;align-items:flex-start;gap:0;margin-bottom:1.25rem}
+  .step-content{flex:1}
+  input[type=text]{width:100%;padding:10px 14px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:15px;color:var(--text);background:var(--surface);outline:none;transition:border .15s;margin-top:.4rem}
+  input[type=text]:focus{border-color:#6366f1}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 22px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text);transition:all .12s;text-decoration:none}
+  .btn:hover{background:var(--bg)}
+  .btn.primary{background:#1a1a18;color:#fff;border-color:transparent;width:100%;font-size:15px;padding:12px}
+  .btn.primary:hover{opacity:.85}
+  .btn.primary:disabled{opacity:.4;cursor:not-allowed}
+  .btn.download{background:var(--blue-bg);border-color:var(--blue-border);color:var(--blue-text);width:100%;padding:12px;font-size:15px}
+  .btn.download:hover{background:#dbeafe}
+  .badge-info{display:inline-flex;align-items:center;gap:5px;background:var(--amber-bg);border:1px solid var(--amber-border);color:var(--amber-text);border-radius:var(--radius-sm);padding:8px 12px;font-size:13px;margin-bottom:1rem;width:100%}
+
+  /* Upload zone */
+  .upload-zone{border:2px dashed var(--border2);border-radius:var(--radius);padding:2rem 1rem;text-align:center;cursor:pointer;transition:all .15s;position:relative;background:var(--bg)}
+  .upload-zone:hover,.upload-zone.drag{border-color:#6366f1;background:var(--blue-bg)}
+  .upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+  .upload-icon{font-size:32px;margin-bottom:.5rem}
+  .upload-zone p{font-size:14px;color:var(--text2);margin-bottom:.25rem}
+  .upload-zone small{font-size:12px;color:var(--text3)}
+  .file-chosen{display:none;align-items:center;gap:10px;background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius-sm);padding:10px 14px;margin-top:.75rem}
+  .file-chosen.show{display:flex}
+  .file-chosen span{font-size:13px;color:var(--green-text);font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* Progress */
+  .progress-wrap{display:none;margin-top:.75rem}
+  .progress-wrap.show{display:block}
+  .progress-bar{height:6px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:.4rem}
+  .progress-fill{height:100%;background:#1a1a18;border-radius:4px;transition:width .3s;width:0%}
+  .progress-text{font-size:12px;color:var(--text2);text-align:center}
+
+  /* Success */
+  .success-box{display:none;background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius);padding:1.5rem;text-align:center;margin-top:1rem}
+  .success-box.show{display:block}
+  .success-icon{font-size:40px;margin-bottom:.75rem}
+  .success-box h2{color:var(--green-text);margin-bottom:.4rem}
+  .success-box p{color:var(--green-text);font-size:13px}
+
+  .error-msg{font-size:13px;color:var(--red-text);margin-top:.4rem;display:none}
+  .error-msg.show{display:block}
+
+  .divider{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
+</style>
+</head>
+<body>
+<div class="container">
+  <div style="text-align:center;margin-bottom:2rem">
+    <h1 id="page-title">Bài thi thực hành</h1>
+    <p id="page-session" style="margin-top:.25rem;font-size:14px;color:var(--text3)"></p>
+  </div>
+
+  <div class="badge-info">
+    ⏱ Thời gian: <strong id="duration-label">90 phút</strong>
+    &nbsp;·&nbsp; Đọc kỹ đề trước khi làm &nbsp;·&nbsp; Nộp bài đúng định dạng
+  </div>
+
+  <!-- STEP 1: Nhập tên -->
+  <div class="card">
+    <div class="step-row">
+      <span class="step-num">1</span>
+      <div class="step-content">
+        <h2>Nhập họ và tên</h2>
+        <p>Họ tên sẽ được dùng để đặt tên file và xác định bài nộp của bạn.</p>
+        <input type="text" id="student-name" placeholder="Ví dụ: Nguyễn Văn An" maxlength="80" autocomplete="off" />
+        <div id="name-error" class="error-msg">Vui lòng nhập họ tên trước khi tải đề.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: Tải đề -->
+  <div class="card">
+    <div class="step-row">
+      <span class="step-num">2</span>
+      <div class="step-content">
+        <h2>Tải đề thi về máy</h2>
+        <p style="margin-bottom:.85rem">Click nút bên dưới để tải file đề thi. Đọc kỹ và thực hành theo hướng dẫn.</p>
+        <a id="btn-download" class="btn download" href="/api/download-exam" download onclick="return checkName()">
+          📄 Tải đề thi (.docx)
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: Upload -->
+  <div class="card">
+    <div class="step-row">
+      <span class="step-num">3</span>
+      <div class="step-content">
+        <h2>Nộp bài thực hành</h2>
+        <p style="margin-bottom:.85rem">
+          Nén toàn bộ kết quả vào 1 file ZIP, đặt tên: <strong>HoTen_BaiThi.zip</strong><br>
+          Định dạng chấp nhận: .zip .rar .pdf .docx .png .jpg (tối đa <span id="max-mb">50</span>MB)
+        </p>
+
+        <div class="upload-zone" id="drop-zone">
+          <input type="file" id="file-input" accept=".zip,.rar,.7z,.pdf,.docx,.doc,.png,.jpg,.jpeg" onchange="onFileChosen(this)" />
+          <div class="upload-icon">📁</div>
+          <p>Kéo thả file vào đây hoặc click để chọn</p>
+          <small>zip, rar, pdf, docx, png, jpg</small>
+        </div>
+
+        <div class="file-chosen" id="file-chosen">
+          <span>✓</span>
+          <span id="file-name-display">file.zip</span>
+          <span id="file-size-display" style="font-size:12px;color:var(--green-text);flex-shrink:0"></span>
+        </div>
+
+        <div id="upload-error" class="error-msg"></div>
+
+        <div class="progress-wrap" id="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+          <div class="progress-text" id="progress-text">Đang upload...</div>
+        </div>
+
+        <button class="btn primary" id="btn-submit" onclick="submitFile()" style="margin-top:1rem" disabled>
+          📤 Nộp bài
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-box" id="success-box">
+    <div class="success-icon">✅</div>
+    <h2>Nộp bài thành công!</h2>
+    <p id="success-msg">Bài thi của bạn đã được ghi nhận.</p>
+    <p style="margin-top:.5rem;font-size:12px">Bạn có thể đóng trình duyệt.</p>
+  </div>
+
+</div>
+<script>
+let selectedFile = null;
+let configData = {};
+
+// Load config
+fetch("/api/info").then(r => r.json()).then(data => {
+  configData = data || {};
+  document.getElementById("page-title").textContent = (configData.title || "Bài thi thực hành") + " — Thực hành";
+  document.getElementById("page-session").textContent = configData.session || "";
+  document.getElementById("duration-label").textContent = (configData.duration || 90) + " phút";
+}).catch(() => {});
+
+// Drag & drop
+const zone = document.getElementById("drop-zone");
+zone.addEventListener("dragover", e => { e.preventDefault(); zone.classList.add("drag"); });
+zone.addEventListener("dragleave", () => zone.classList.remove("drag"));
+zone.addEventListener("drop", e => {
+  e.preventDefault(); zone.classList.remove("drag");
+  const f = e.dataTransfer.files[0];
+  if (f) processFile(f);
+});
+
+function onFileChosen(input) {
+  if (input.files[0]) processFile(input.files[0]);
+}
+
+function processFile(f) {
+  const allowed = [".zip",".rar",".7z",".pdf",".docx",".doc",".png",".jpg",".jpeg"];
+  const ext = "." + f.name.split(".").pop().toLowerCase();
+  if (!allowed.includes(ext)) {
+    showError("upload-error", "Định dạng file không được phép: " + ext);
+    return;
+  }
+  const maxMb = parseInt(document.getElementById("max-mb").textContent) || configData.maxMb || 50;
+  if (f.size > maxMb * 1024 * 1024) {
+    showError("upload-error", `File quá lớn. Tối đa ${maxMb}MB.`);
+    return;
+  }
+  selectedFile = f;
+  hideError("upload-error");
+  document.getElementById("file-name-display").textContent = f.name;
+  document.getElementById("file-size-display").textContent = (f.size / 1024 / 1024).toFixed(2) + " MB";
+  document.getElementById("file-chosen").classList.add("show");
+  document.getElementById("btn-submit").disabled = false;
+}
+
+function checkName() {
+  const name = document.getElementById("student-name").value.trim();
+  if (!name) {
+    showError("name-error", "Vui lòng nhập họ tên trước khi tải đề.");
+    document.getElementById("student-name").focus();
+    return false;
+  }
+  hideError("name-error");
+  return true;
+}
+
+async function submitFile() {
+  const name = document.getElementById("student-name").value.trim();
+  if (!name) { showError("name-error", "Vui lòng nhập họ tên."); return; }
+  if (!selectedFile) return;
+  hideError("upload-error");
+
+  const btn = document.getElementById("btn-submit");
+  btn.disabled = true;
+  btn.textContent = "Đang nộp...";
+
+  const formData = new FormData();
+  formData.append("file", selectedFile);
+  formData.append("studentName", name);
+
+  const progress = document.getElementById("progress-wrap");
+  const fill = document.getElementById("progress-fill");
+  const ptext = document.getElementById("progress-text");
+  progress.classList.add("show");
+
+  try {
+    await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/submit");
+      xhr.upload.addEventListener("progress", e => {
+        if (e.lengthComputable) {
+          const pct = Math.round(e.loaded / e.total * 100);
+          fill.style.width = pct + "%";
+          ptext.textContent = `Đang upload... ${pct}%`;
+        }
+      });
+      xhr.addEventListener("load", () => {
+        if (xhr.status === 200) {
+          const res = JSON.parse(xhr.responseText);
+          if (res.ok) resolve(res);
+          else reject(new Error(res.error || "Lỗi không xác định"));
+        } else {
+          try { reject(new Error(JSON.parse(xhr.responseText).error)); }
+          catch(e) { reject(new Error("Lỗi server: " + xhr.status)); }
+        }
+      });
+      xhr.addEventListener("error", () => reject(new Error("Mất kết nối mạng")));
+      xhr.send(formData);
+    });
+
+    fill.style.width = "100%";
+    ptext.textContent = "Hoàn thành!";
+    document.getElementById("success-msg").textContent =
+      `Bài của ${name} đã được ghi nhận lúc ${new Date().toLocaleTimeString("vi-VN")}.`;
+    document.getElementById("success-box").classList.add("show");
+    document.querySelector(".container").querySelectorAll(".card").forEach(c => c.style.opacity = ".5");
+
+  } catch(err) {
+    showError("upload-error", "Lỗi: " + err.message);
+    btn.disabled = false;
+    btn.textContent = "📤 Nộp bài";
+    progress.classList.remove("show");
+  }
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.classList.add("show");
+}
+function hideError(id) {
+  const el = document.getElementById(id);
+  el.textContent = ""; el.classList.remove("show");
+}
+</script>
+</body>
+</html>

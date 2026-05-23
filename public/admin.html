@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Bài thi thực hành</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#f5f5f0;--surface:#fff;--border:#e2e0d8;--border2:#c8c6bc;
+    --text:#1a1a18;--text2:#6b6a64;--text3:#9b9a94;
+    --green-bg:#f0fdf4;--green-border:#bbf7d0;--green-text:#15803d;
+    --red-bg:#fef2f2;--red-border:#fecaca;--red-text:#dc2626;
+    --blue-bg:#eff6ff;--blue-border:#bfdbfe;--blue-text:#1d4ed8;
+    --radius:10px;--radius-sm:7px;
+  }
+  body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--text)}
+  .container{max-width:960px;margin:0 auto;padding:1.5rem 1rem}
+  h1{font-size:20px;font-weight:600}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem}
+  input[type=password]{padding:9px 13px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;color:var(--text);background:var(--surface);outline:none;width:260px}
+  input[type=password]:focus{border-color:#6366f1}
+  input[type=text]{padding:7px 11px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;color:var(--text);background:var(--surface);outline:none;width:220px}
+  input[type=text]:focus{border-color:#6366f1}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text);transition:background .12s;text-decoration:none}
+  .btn:hover{background:var(--bg)}
+  .btn.primary{background:#1a1a18;color:#fff;border-color:transparent}
+  .btn.primary:hover{opacity:.85}
+  .btn.green{border-color:var(--green-border);color:var(--green-text)}
+  .btn.green:hover{background:var(--green-bg)}
+  .btn.blue{border-color:var(--blue-border);color:var(--blue-text)}
+  .btn.blue:hover{background:var(--blue-bg)}
+  .btn.red{border-color:var(--red-border);color:var(--red-text)}
+  .btn.red:hover{background:var(--red-bg)}
+  .screen{display:none}.screen.active{display:block}
+  .error{color:var(--red-text);font-size:13px;margin-top:.4rem;display:none}
+
+  .toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1rem}
+  .stat{background:var(--bg);border-radius:var(--radius-sm);padding:.85rem 1rem}
+  .stat-label{font-size:12px;color:var(--text2);margin-bottom:.2rem}
+  .stat-val{font-size:24px;font-weight:600}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:8px 10px;font-weight:500;color:var(--text2);font-size:11px;letter-spacing:.4px;border-bottom:2px solid var(--border2);white-space:nowrap}
+  td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+  tr:last-child td{border:none}
+  tr:hover td{background:var(--bg)}
+
+  .file-ext{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;background:var(--blue-bg);color:var(--blue-text);border:1px solid var(--blue-border);text-transform:uppercase}
+  .size-tag{font-size:12px;color:var(--text3)}
+  #no-data{text-align:center;padding:2.5rem;color:var(--text2)}
+
+  /* Upload đề thi */
+  .upload-zone{border:2px dashed var(--border2);border-radius:var(--radius-sm);padding:1.25rem;text-align:center;cursor:pointer;transition:border .15s;position:relative;background:var(--bg)}
+  .upload-zone:hover{border-color:#6366f1;background:var(--blue-bg)}
+  .upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+  .upload-zone p{font-size:13px;color:var(--text2)}
+  .exam-file-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius-sm);margin-top:.5rem}
+  .exam-file-item span{font-size:13px;color:var(--green-text);flex:1}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- LOGIN -->
+<div id="screen-login" class="screen active">
+  <div style="max-width:360px;margin:4rem auto">
+    <div class="card">
+      <div style="text-align:center;margin-bottom:1.25rem">
+        <div style="font-size:28px;margin-bottom:.5rem">📋</div>
+        <h1>Admin — Thực hành</h1>
+        <p style="font-size:13px;color:var(--text2);margin-top:.25rem">Quản lý bài thi thực hành</p>
+      </div>
+      <label style="display:block;font-size:12px;color:var(--text2);margin-bottom:.35rem">Mật khẩu admin</label>
+      <input type="password" id="pw-input" placeholder="Nhập mật khẩu..." style="width:100%" onkeydown="if(event.key==='Enter')doLogin()" />
+      <div id="pw-error" class="error">Sai mật khẩu.</div>
+      <button class="btn primary" style="margin-top:.85rem;width:100%;justify-content:center" onclick="doLogin()">Đăng nhập</button>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="screen-dash" class="screen">
+
+  <!-- Toolbar -->
+  <div class="toolbar" style="margin-bottom:1.25rem">
+    <div>
+      <h1>📋 Bài nộp thực hành</h1>
+      <p style="font-size:13px;color:var(--text2);margin-top:.2rem" id="session-label"></p>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+      <button class="btn green" onclick="downloadAll()">⬇️ Tải tất cả (.zip)</button>
+      <button class="btn" onclick="loadSubmissions()">🔄 Làm mới</button>
+      
+      <button class="btn red" onclick="doLogout()">Đăng xuất</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid" id="stats-grid"></div>
+
+  <!-- Quản lý đề thi -->
+  <div class="card">
+    <div style="font-size:14px;font-weight:600;margin-bottom:.75rem">📄 File đề thi hiện tại</div>
+    <div id="exam-files-list"></div>
+    <div style="margin-top:.75rem">
+      <div class="upload-zone" id="exam-upload-zone">
+        <input type="file" accept=".docx,.doc,.pdf" onchange="uploadExam(this)" />
+        <p>📤 Click để upload đề thi mới (.docx / .pdf)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Danh sách bài nộp -->
+  <div class="card" style="overflow-x:auto">
+    <div class="toolbar" style="margin-bottom:.75rem">
+      <div style="font-size:14px;font-weight:600">Danh sách bài nộp</div>
+      <div style="display:flex;gap:.5rem;align-items:center">
+        <input type="text" id="search-input" placeholder="🔍 Tìm tên..." oninput="filterTable()" />
+      </div>
+    </div>
+    <table>
+      <thead><tr>
+        <th>#</th>
+        <th>Họ tên</th>
+        <th>File gốc</th>
+        <th>Loại</th>
+        <th>Kích thước</th>
+        <th>Thời gian nộp</th>
+        <th>Tải về</th>
+      </tr></thead>
+      <tbody id="submissions-body"></tbody>
+    </table>
+    <div id="no-data" style="display:none">Chưa có bài nộp.</div>
+  </div>
+
+</div>
+</div>
+
+<script>
+let password = "";
+let allSubmissions = [];
+
+function doLogin() {
+  password = document.getElementById("pw-input").value;
+  if (!password) return;
+  loadSubmissions();
+  loadExamFiles();
+}
+
+async function loadSubmissions() {
+  try {
+    const res = await fetch("/api/admin/list?password=" + encodeURIComponent(password));
+    if (res.status === 401) { document.getElementById("pw-error").style.display = "block"; return; }
+    const data = await res.json();
+    allSubmissions = data.submissions || [];
+    document.getElementById("pw-error").style.display = "none";
+    renderStats();
+    renderTable(allSubmissions);
+    goScreen("screen-dash");
+  } catch(e) { alert("Lỗi kết nối server."); }
+}
+
+async function loadExamFiles() {
+  const container = document.getElementById("exam-files-list");
+  try {
+    const res = await fetch("/api/admin/exam-files?password=" + encodeURIComponent(password));
+    if (!res.ok) { container.innerHTML = '<p style="font-size:13px;color:var(--text2)">Chưa có file đề thi.</p>'; return; }
+    const data = await res.json();
+    if (!data.files || data.files.length === 0) {
+      container.innerHTML = '<p style="font-size:13px;color:var(--text2)">Chưa có file đề thi. Upload file bên dưới.</p>';
+      return;
+    }
+    container.innerHTML = data.files.map(f => `
+      <div class="exam-file-item">
+        <span>📄 ${f.name}</span>
+        <span style="font-size:12px;color:var(--green-text)">${(f.size/1024).toFixed(0)} KB</span>
+        <a class="btn blue" style="padding:4px 10px;font-size:12px" href="/api/download-exam?file=${encodeURIComponent(f.name)}" download>Tải</a>
+      </div>
+    `).join("");
+    document.getElementById("session-label").textContent = allSubmissions[0]?.session || "";
+  } catch(e) {}
+}
+
+async function uploadExam(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("password", password);
+  try {
+    const res = await fetch("/api/admin/upload-exam", { method: "POST", body: formData });
+    const data = await res.json();
+    if (data.ok) { alert("✅ Upload đề thi thành công: " + data.filename); loadExamFiles(); }
+    else alert("Lỗi: " + data.error);
+  } catch(e) { alert("Lỗi upload."); }
+  input.value = "";
+}
+
+function renderStats() {
+  const total = allSubmissions.length;
+  const today = allSubmissions.filter(s => new Date(s.submittedAt).toDateString() === new Date().toDateString()).length;
+  document.getElementById("stats-grid").innerHTML = `
+    <div class="stat"><div class="stat-label">Tổng bài nộp</div><div class="stat-val">${total}</div></div>
+    <div class="stat"><div class="stat-label">Hôm nay</div><div class="stat-val">${today}</div></div>
+    <div class="stat"><div class="stat-label">Kỳ thi</div><div class="stat-val" style="font-size:14px;padding-top:4px">${allSubmissions[0]?.session || "—"}</div></div>
+  `;
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById("submissions-body");
+  const noData = document.getElementById("no-data");
+  if (data.length === 0) { tbody.innerHTML = ""; noData.style.display = "block"; return; }
+  noData.style.display = "none";
+  tbody.innerHTML = data.map((s, i) => {
+    const ext = s.originalName.split(".").pop().toUpperCase();
+    const sizeMb = s.size > 1048576 ? (s.size/1024/1024).toFixed(2)+" MB" : (s.size/1024).toFixed(0)+" KB";
+    const time = new Date(s.submittedAt).toLocaleString("vi-VN");
+    return `<tr>
+      <td style="color:var(--text3)">${i+1}</td>
+      <td style="font-weight:500">${s.studentName}</td>
+      <td style="color:var(--text2);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${s.originalName}">${s.originalName}</td>
+      <td><span class="file-ext">${ext}</span></td>
+      <td><span class="size-tag">${sizeMb}</span></td>
+      <td style="color:var(--text2)">${time}</td>
+      <td><a class="btn blue" style="padding:4px 10px;font-size:12px"
+        href="/api/admin/download/${encodeURIComponent(s.savedName)}?password=${encodeURIComponent(password)}"
+        download="${s.originalName}">⬇️ Tải</a></td>
+    </tr>`;
+  }).join("");
+}
+
+function filterTable() {
+  const q = document.getElementById("search-input").value.toLowerCase();
+  renderTable(allSubmissions.filter(s => s.studentName.toLowerCase().includes(q) || s.originalName.toLowerCase().includes(q)));
+}
+
+function downloadAll() {
+  window.location.href = "/api/admin/download-all?password=" + encodeURIComponent(password);
+}
+
+function doLogout() { password = ""; allSubmissions = []; document.getElementById("pw-input").value = ""; goScreen("screen-login"); }
+function goScreen(id) { document.querySelectorAll(".screen").forEach(s => s.classList.remove("active")); document.getElementById(id).classList.add("active"); }
+</script>
+</body>
+</html>
