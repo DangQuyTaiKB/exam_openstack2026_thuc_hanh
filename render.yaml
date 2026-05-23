@@ -2,7 +2,7 @@ services:
   - type: web
     name: exam-openstack2026-thuc-hanh
     runtime: node
-    plan: free
+    plan: starter
     buildCommand: npm ci
     startCommand: npm start
     envVars:
@@ -24,7 +24,7 @@ services:
         value: /var/data/uploads
       - key: EXAMS_DIR
         value: /var/data/exams
-    disks:
-      - name: exam-data
-        mountPath: /var/data
-        sizeGB: 1
+    disk:
+      name: exam-data
+      mountPath: /var/data
+      sizeGB: 1
